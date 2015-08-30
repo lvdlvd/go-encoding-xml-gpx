@@ -84,7 +84,7 @@ type WptType struct {
 	Ele           *int        `xml:"ele,omitempty"`           // Elevation (in meters) of the point.
 	Time          *time.Time  `xml:"time,omitempty"`          // Creation/modification timestamp for element. Date and time in are in Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601 specification for date/time representation. Fractional seconds are allowed for millisecond timing in tracklogs.
 	Magvar        *float64    `xml:"magvar,omitempty"`        // Magnetic variation (in degrees) at the point
-	Geoidheight   *float64    `xml:"geoidheight,omitempty"`   // Height (in meters) of geoid (mean sea level) above WGS84 earth ellipsoid.  As defined in NMEA GGA message.
+	Geoidheight   *int        `xml:"geoidheight,omitempty"`   // Height (in meters) of geoid (mean sea level) above WGS84 earth ellipsoid.  As defined in NMEA GGA message.
 	Name          *string     `xml:"name,omitempty"`          // The GPS name of the waypoint. This field will be transferred to and from the GPS. GPX does not place restrictions on the length of this field or the characters contained in it. It is up to the receiving application to validate the field before sending it to the GPS.
 	Cmt           *string     `xml:"cmt,omitempty"`           // GPS waypoint comment. Sent to GPS as comment.
 	Desc          *string     `xml:"desc,omitempty"`          // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
