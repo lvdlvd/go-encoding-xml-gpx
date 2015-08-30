@@ -1,6 +1,12 @@
 /*
 Package gpx provides xml En/Decodable structures for the GPX format as defined by
 http://www.topografix.com/gpx/1/1/ gpx.xsd.
+
+GPX schema version 1.1
+
+For more information on GPX and this schema, visit http://www.topografix.com/gpx.asp
+
+GPX uses the following conventions: all coordinates are relative to the WGS84 datum. All measurements are in metric units.
 */
 package gpx
 
@@ -9,19 +15,10 @@ import (
 	"time"
 )
 
-/*
-<gpx
-version="1.1 [1] ?"
-creator="xsd:string [1] ?">
-<metadata> metadataType </metadata> [0..1] ?
-<wpt> wptType </wpt> [0..*] ?
-<rte> rteType </rte> [0..*] ?
-<trk> trkType </trk> [0..*] ?
-<extensions> extensionsType </extensions> [0..1] ?
-</gpx>
-*/
-
-type Gpx struct {
+// GPX is the root element in the XML file.
+//
+// GPX documents contain a metadata header, followed by waypoints, routes, and tracks.
+type GPX struct {
 	XMLName  xml.Name      `xml:"gpx"`
 	Version  string        `xml:"version,attr"`
 	Creator  string        `xml:"creator,attr"`
@@ -31,17 +28,8 @@ type Gpx struct {
 	Trk      []*TrkType    `xml:"trk,omitempty"`
 }
 
-/*
-<name> xsd:string </name> [0..1] ?
-<desc> xsd:string </desc> [0..1] ?
-<author> personType </author> [0..1] ?
-<copyright> copyrightType </copyright> [0..1] ?
-<link> linkType </link> [0..*] ?
-<time> xsd:dateTime </time> [0..1] ?
-<keywords> xsd:string </keywords> [0..1] ?
-<bounds> boundsType </bounds> [0..1] ?
-<extensions> extensionsType </extensions> [0..1] ?
-*/
+// Information about the GPX file, author, and copyright restrictions goes in the metadata section.
+// Providing rich, meaningful information about your GPX files allows others to search for and use your GPS data.
 type MetadataType struct {
 	Name      *string        `xml:"name,omitempty"`
 	Desc      *string        `xml:"desc,omitempty"`
@@ -53,56 +41,35 @@ type MetadataType struct {
 	Bounds    *BoundsType    `xml:"bounds,omitempty"`
 }
 
-/*
-<name> xsd:string </name> [0..1] ?
-<email> emailType </email> [0..1] ?
-<link> linkType </link> [0..1] ?
-*/
+// A person or organization.
 type PersonType struct {
 	Name  *string    `xml:"name,omitempty"`
 	Email *EmailType `xml:"email,omitempty"`
 	Link  *LinkType  `xml:"link,omitempty"`
 }
 
-/*
-<...
-id="xsd:string [1] ?"
-domain="xsd:string [1] ?"
-/>
-*/
+// An email address. Broken into two parts (id and domain) to help prevent email harvesting.
 type EmailType struct {
 	Id     string `xml:"id,attr"`
 	Domain string `xml:"domain,attr"`
 }
 
-/*
-href="xsd:anyURI [1] ?">
-<text> xsd:string </text> [0..1] ?
-<type> xsd:string </type> [0..1] ?
-*/
+// A link to an external resource (Web page, digital photo, video clip, etc) with additional information.
 type LinkType struct {
 	Href string  `xml:"href,attr"`
 	Text *string `xml:"text,omitempty"`
 	Type *string `xml:"type,omitempty"`
 }
 
-/*
-author="xsd:string [1] ?">
-<year> xsd:gYear </year> [0..1] ?
-<license> xsd:anyURI </license> [0..1] ?
-*/
+// Information about the copyright holder and any license governing use of this file.
+// By linking to an appropriate license, you may place your data into the public domain or grant additional usage rights.
 type CopyrightType struct {
 	Author  string  `xml:"author,attr"`
 	Year    *int    `xml:"year,omitempty"`
 	License *string `xml:"license,omitempty"`
 }
 
-/*
-minlat="latitudeType [1] ?"
-minlon="longitudeType [1] ?"
-maxlat="latitudeType [1] ?"
-maxlon="longitudeType [1] ?"/>
-*/
+// Two lat/lon pairs defining the extent of an element.
 type BoundsType struct {
 	Minlat float64 `xml:"minlat,attr"`
 	Minlon float64 `xml:"minlon,attr"`
@@ -110,63 +77,31 @@ type BoundsType struct {
 	Maxlon float64 `xml:"maxlon,attr"`
 }
 
-/*
-lat="latitudeType [1] ?"
-lon="longitudeType [1] ?">
-<ele> xsd:decimal </ele> [0..1] ?
-<time> xsd:dateTime </time> [0..1] ?
-<magvar> degreesType </magvar> [0..1] ?
-<geoidheight> xsd:decimal </geoidheight> [0..1] ?
-<name> xsd:string </name> [0..1] ?
-<cmt> xsd:string </cmt> [0..1] ?
-<desc> xsd:string </desc> [0..1] ?
-<src> xsd:string </src> [0..1] ?
-<link> linkType </link> [0..*] ?
-<sym> xsd:string </sym> [0..1] ?
-<type> xsd:string </type> [0..1] ?
-<fix> fixType </fix> [0..1] ?
-<sat> xsd:nonNegativeInteger </sat> [0..1] ?
-<hdop> xsd:decimal </hdop> [0..1] ?
-<vdop> xsd:decimal </vdop> [0..1] ?
-<pdop> xsd:decimal </pdop> [0..1] ?
-<ageofdgpsdata> xsd:decimal </ageofdgpsdata> [0..1] ?
-<dgpsid> dgpsStationType </dgpsid> [0..1] ?
-<extensions> extensionsType </extensions> [0..1] ?
-*/
+// wpt represents a waypoint, point of interest, or named feature on a map.
 type WptType struct {
 	Lat           float64     `xml:"lat,attr"`
 	Lon           float64     `xml:"lon,attr"`
-	Ele           *int        `xml:"ele,omitempty"`
-	Time          *time.Time  `xml:"time,omitempty"`
-	Magvar        *float64    `xml:"magvar,omitempty"`
-	Geoidheight   *float64    `xml:"geoidheight,omitempty"`
-	Name          *string     `xml:"name,omitempty"`
-	Cmt           *string     `xml:"cmt,omitempty"`
-	Desc          *string     `xml:"desc,omitempty"`
-	Src           *string     `xml:"src,omitempty"`
-	Link          []*LinkType `xml:"link,omitempty"`
-	Sym           *string     `xml:"sym,omitempty"`
-	Type          *string     `xml:"type,omitempty"`
-	Fix           *string     `xml:"fix,omitempty"`
-	Sat           *int        `xml:"sat,omitempty"`
-	Hdop          *int        `xml:"hdop,omitempty"`
-	Vdop          *int        `xml:"vdop,omitempty"`
-	Pdop          *int        `xml:"pdop,omitempty"`
-	Ageofdgpsdata *int        `xml:"ageofdgpsdata,omitempty"`
-	Dgpsid        *string     `xml:"dgpsid,omitempty"`
+	Ele           *int        `xml:"ele,omitempty"`           // Elevation (in meters) of the point.
+	Time          *time.Time  `xml:"time,omitempty"`          // Creation/modification timestamp for element. Date and time in are in Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601 specification for date/time representation. Fractional seconds are allowed for millisecond timing in tracklogs.
+	Magvar        *float64    `xml:"magvar,omitempty"`        // Magnetic variation (in degrees) at the point
+	Geoidheight   *float64    `xml:"geoidheight,omitempty"`   // Height (in meters) of geoid (mean sea level) above WGS84 earth ellipsoid.  As defined in NMEA GGA message.
+	Name          *string     `xml:"name,omitempty"`          // The GPS name of the waypoint. This field will be transferred to and from the GPS. GPX does not place restrictions on the length of this field or the characters contained in it. It is up to the receiving application to validate the field before sending it to the GPS.
+	Cmt           *string     `xml:"cmt,omitempty"`           // GPS waypoint comment. Sent to GPS as comment.
+	Desc          *string     `xml:"desc,omitempty"`          // A text description of the element. Holds additional information about the element intended for the user, not the GPS.
+	Src           *string     `xml:"src,omitempty"`           // Source of data. Included to give user some idea of reliability and accuracy of data.  "Garmin eTrex", "USGS quad Boston North", e.g.
+	Link          []*LinkType `xml:"link,omitempty"`          // Link to additional information about the waypoint.
+	Sym           *string     `xml:"sym,omitempty"`           // Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS.  If the GPS abbreviates words, spell them out.
+	Type          *string     `xml:"type,omitempty"`          // Type (classification) of the waypoint.
+	Fix           *string     `xml:"fix,omitempty"`           // Type of GPX fix. ('none'|'2d'|'3d'|'dgps'|'pps')
+	Sat           *int        `xml:"sat,omitempty"`           // Number of satellites used to calculate the GPX fix.
+	Hdop          *int        `xml:"hdop,omitempty"`          // Horizontal dilution of precision.
+	Vdop          *int        `xml:"vdop,omitempty"`          // Vertical dilution of precision.
+	Pdop          *int        `xml:"pdop,omitempty"`          // Position dilution of precision.
+	Ageofdgpsdata *int        `xml:"ageofdgpsdata,omitempty"` // Number of seconds since last DGPS update.
+	Dgpsid        *string     `xml:"dgpsid,omitempty"`        // ID of DGPS station used in differential correction.
 }
 
-/*
-<name> xsd:string </name> [0..1] ?
-<cmt> xsd:string </cmt> [0..1] ?
-<desc> xsd:string </desc> [0..1] ?
-<src> xsd:string </src> [0..1] ?
-<link> linkType </link> [0..*] ?
-<number> xsd:nonNegativeInteger </number> [0..1] ?
-<type> xsd:string </type> [0..1] ?
-<extensions> extensionsType </extensions> [0..1] ?
-<rtept> wptType </rtept> [0..*] ?
-*/
+// rte represents route - an ordered list of waypoints representing a series of turn points leading to a destination.
 type RteType struct {
 	Name   *string     `xml:"name,omitempty"`
 	Cmt    *string     `xml:"cmt,omitempty"`
@@ -178,17 +113,7 @@ type RteType struct {
 	Rtept  []*WptType  `xml:"rtept,omitempty"`
 }
 
-/*
-<name> xsd:string </name> [0..1] ?
-<cmt> xsd:string </cmt> [0..1] ?
-<desc> xsd:string </desc> [0..1] ?
-<src> xsd:string </src> [0..1] ?
-<link> linkType </link> [0..*] ?
-<number> xsd:nonNegativeInteger </number> [0..1] ?
-<type> xsd:string </type> [0..1] ?
-<extensions> extensionsType </extensions> [0..1] ?
-<trkseg> trksegType </trkseg> [0..*] ?
-*/
+// trk represents a track - an ordered list of points describing a path.
 type TrkType struct {
 	Name   *string       `xml:"name,omitempty"`
 	Cmt    *string       `xml:"cmt,omitempty"`
@@ -200,10 +125,9 @@ type TrkType struct {
 	Trkseg []*TrksegType `xml:"trkseg,omitempty"`
 }
 
-/*
-<trkpt> wptType </trkpt> [0..*] ?
-<extensions> extensionsType </extensions> [0..1] ?
-*/
+// A Track Segment holds a list of Track Points which are logically connected in order.
+// To represent a single GPS track where GPS reception was lost, or the GPS receiver was
+// turned off, start a new Track Segment for each continuous span of track data.
 type TrksegType struct {
 	Trkpt []*WptType `xml:"trkpt,omitempty"`
 }
